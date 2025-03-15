@@ -1,15 +1,48 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNames } from "@/context/NameContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import NavBar from "@/components/NavBar";
-import { Trophy, UserRound, Globe } from "lucide-react";
+import { Trophy, UserRound, Globe, LogIn } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { useNavigate } from "react-router-dom";
 
 const RankingsPage = () => {
   const { getUserRanking, getTopNames, votes, userId } = useNames();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("boys");
+  const navigate = useNavigate();
+  
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
+  
+  // If not logged in, show a login prompt
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <NavBar />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">Login Required</h1>
+            <p className="text-xl text-gray-600 mb-8">
+              You need to be logged in to view your rankings.
+            </p>
+            <Button size="lg" className="gap-2" onClick={() => navigate("/")}>
+              <LogIn className="h-5 w-5" />
+              Go to Homepage to Log In
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   const userBoyRankings = getUserRanking("boy");
   const userGirlRankings = getUserRanking("girl");
