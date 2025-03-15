@@ -51,8 +51,10 @@ interface NameContextType {
   getGroupRanking: (groupId: string, gender: Gender) => Name[];
   createGroup: (name: string) => Group;
   joinGroup: (groupId: string) => boolean;
+  kickMember: (groupId: string, memberId: string) => boolean;
   setCurrentGroup: (groupId: string | null) => void;
   getGroupById: (groupId: string) => Group | undefined;
+  getUserGroups: () => Group[];
   fetchNames: () => Promise<void>;
 }
 
@@ -102,6 +104,16 @@ export const NameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     gender: "boy",
     pair: null
   });
+
+  // Reset current group if it's not accessible to the current user
+  useEffect(() => {
+    if (currentGroup) {
+      const group = groups.find(g => g.id === currentGroup);
+      if (!group || !group.members.includes(userId)) {
+        setCurrentGroup(null);
+      }
+    }
+  }, [userId, groups, currentGroup]);
 
   // Load names from our local test data instead of fetching from URLs
   const fetchNames = async () => {
@@ -358,6 +370,11 @@ export const NameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return rankedNames;
   };
 
+  // Get groups where the current user is a member
+  const getUserGroups = () => {
+    return groups.filter(g => g.members.includes(userId));
+  };
+
   // Create a new group
   const createGroup = (name: string) => {
     const newGroup: Group = {
@@ -416,6 +433,69 @@ export const NameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return true;
   };
 
+  // Kick a member from a group (only group creator can do this)
+  const kickMember = (groupId: string, memberId: string) => {
+    const groupIndex = groups.findIndex(g => g.id === groupId);
+    
+    if (groupIndex === -1) {
+      toast({
+        title: "Error",
+        description: "Group not found.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    const group = groups[groupIndex];
+    
+    // Only the creator can kick members
+    if (group.createdBy !== userId) {
+      toast({
+        title: "Permission Denied",
+        description: "Only the group creator can remove members.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    // Cannot kick yourself (the creator)
+    if (memberId === userId) {
+      toast({
+        title: "Error",
+        description: "You cannot remove yourself from the group.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    // Check if the member is in the group
+    if (!group.members.includes(memberId)) {
+      toast({
+        title: "Error",
+        description: "This user is not a member of the group.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    // Remove the member
+    const updatedGroup = {
+      ...group,
+      members: group.members.filter(id => id !== memberId)
+    };
+    
+    const updatedGroups = [...groups];
+    updatedGroups[groupIndex] = updatedGroup;
+    
+    setGroups(updatedGroups);
+    toast({
+      title: "Member Removed",
+      description: "The member has been removed from the group.",
+    });
+    
+    return true;
+  };
+
   // Get a group by ID
   const getGroupById = (groupId: string) => {
     return groups.find(g => g.id === groupId);
@@ -441,8 +521,10 @@ export const NameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     getGroupRanking,
     createGroup,
     joinGroup,
+    kickMember,
     setCurrentGroup,
     getGroupById,
+    getUserGroups,
     fetchNames
   };
 

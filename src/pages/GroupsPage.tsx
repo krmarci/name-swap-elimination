@@ -14,19 +14,51 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import NavBar from "@/components/NavBar";
-import { Plus, Users, User, UserPlus, UsersRound } from "lucide-react";
+import { Plus, Users, User, UserPlus, UsersRound, UserX } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const GroupsPage = () => {
-  const { groups, createGroup, joinGroup, currentGroup, setCurrentGroup, getGroupById, getUserRanking, getGroupRanking } = useNames();
+  const { 
+    userId,
+    groups, 
+    createGroup, 
+    joinGroup, 
+    kickMember,
+    currentGroup, 
+    setCurrentGroup, 
+    getGroupById, 
+    getUserGroups,
+    getUserRanking, 
+    getGroupRanking 
+  } = useNames();
   const { toast } = useToast();
   const [newGroupName, setNewGroupName] = useState("");
   const [joinGroupId, setJoinGroupId] = useState("");
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [genderTab, setGenderTab] = useState<string>("boys");
+  const [memberToKick, setMemberToKick] = useState<string | null>(null);
   
+  const userGroups = getUserGroups();
   const activeGroup = currentGroup ? getGroupById(currentGroup) : null;
   const groupBoyRankings = activeGroup ? getGroupRanking(activeGroup.id, "boy") : [];
   const groupGirlRankings = activeGroup ? getGroupRanking(activeGroup.id, "girl") : [];
@@ -76,6 +108,17 @@ const GroupsPage = () => {
       title: "Copied",
       description: "Group ID copied to clipboard",
     });
+  };
+
+  const handleKickMember = (groupId: string, memberId: string) => {
+    const success = kickMember(groupId, memberId);
+    if (success) {
+      setMemberToKick(null);
+    }
+  };
+
+  const isGroupCreator = (group: { createdBy: string }) => {
+    return group.createdBy === userId;
   };
 
   return (
@@ -190,8 +233,8 @@ const GroupsPage = () => {
                 <CardContent className="p-0">
                   <ScrollArea className="h-[400px]">
                     <div className="p-4">
-                      {groups.length > 0 ? (
-                        groups.map((group) => (
+                      {userGroups.length > 0 ? (
+                        userGroups.map((group) => (
                           <div
                             key={group.id}
                             className="p-4 mb-4 border rounded-md hover:bg-gray-50 transition-colors"
@@ -224,6 +267,50 @@ const GroupsPage = () => {
                                 Copy ID
                               </Button>
                             </div>
+                            
+                            {isGroupCreator(group) && group.members.length > 1 && (
+                              <div className="mt-3 pt-3 border-t">
+                                <p className="text-sm font-medium mb-2">Members:</p>
+                                {group.members
+                                  .filter(memberId => memberId !== userId)
+                                  .map((memberId, index) => (
+                                    <div key={index} className="flex justify-between items-center py-1">
+                                      <span className="text-sm">Member {index + 1}</span>
+                                      
+                                      <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                          <Button 
+                                            variant="outline" 
+                                            size="sm"
+                                            className="text-red-500 hover:text-red-700"
+                                          >
+                                            <UserX className="h-3 w-3 mr-1" />
+                                            Remove
+                                          </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                          <AlertDialogHeader>
+                                            <AlertDialogTitle>Remove Member</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                              Are you sure you want to remove this member from the group?
+                                              This action cannot be undone.
+                                            </AlertDialogDescription>
+                                          </AlertDialogHeader>
+                                          <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction 
+                                              onClick={() => handleKickMember(group.id, memberId)}
+                                              className="bg-red-500 hover:bg-red-700"
+                                            >
+                                              Remove
+                                            </AlertDialogAction>
+                                          </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                      </AlertDialog>
+                                    </div>
+                                  ))}
+                              </div>
+                            )}
                           </div>
                         ))
                       ) : (

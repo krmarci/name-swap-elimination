@@ -8,7 +8,7 @@ import NavBar from "@/components/NavBar";
 import { Trophy, UserRound, Globe } from "lucide-react";
 
 const RankingsPage = () => {
-  const { getUserRanking, getTopNames, votes } = useNames();
+  const { getUserRanking, getTopNames, votes, userId } = useNames();
   const [activeTab, setActiveTab] = useState("boys");
   
   const userBoyRankings = getUserRanking("boy");
@@ -16,7 +16,7 @@ const RankingsPage = () => {
   const globalBoyRankings = getTopNames("boy", 100);
   const globalGirlRankings = getTopNames("girl", 100);
   
-  const userVotesCount = votes.filter(v => !v.groupId).length;
+  const userVotesCount = votes.filter(v => v.userId === userId && !v.groupId).length;
 
   return (
     <div className="min-h-screen bg-gray-50">
