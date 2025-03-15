@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { useNames, Name, VoteResult } from "@/context/NameContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import NavBar from "@/components/NavBar";
-import { Equals } from "lucide-react";
+import { Equal } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const BoysPage = () => {
@@ -77,7 +76,7 @@ const BoysPage = () => {
                 variant="outline"
                 className="w-full md:w-2/12 h-16 md:h-20 rounded-xl mx-2 border-2"
               >
-                <Equals className="h-6 w-6" />
+                <Equal className="h-6 w-6" />
               </Button>
               
               <Button
