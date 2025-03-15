@@ -1,146 +1,66 @@
 
 import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { LoginDialog } from "./LoginDialog";
+import { useNames } from "@/context/NameContext";
 
 const NavBar = () => {
   const location = useLocation();
+  const { currentGroup } = useNames();
   
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
-
+  const isActive = (path: string) => location.pathname === path;
+  
   return (
-    <nav className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
-              <Link to="/" className="text-xl font-bold text-gray-800">
-                NameSwap
-              </Link>
-            </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <Link
-                to="/"
-                className={cn(
-                  "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium",
-                  isActive("/")
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                )}
-              >
-                Home
-              </Link>
-              <Link
-                to="/boys"
-                className={cn(
-                  "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium",
-                  isActive("/boys")
-                    ? "border-boy text-boy"
-                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                )}
-              >
-                Boy Names
-              </Link>
-              <Link
-                to="/girls"
-                className={cn(
-                  "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium",
-                  isActive("/girls")
-                    ? "border-girl text-girl"
-                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                )}
-              >
-                Girl Names
-              </Link>
-              <Link
-                to="/rankings"
-                className={cn(
-                  "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium",
-                  isActive("/rankings")
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                )}
-              >
-                My Rankings
-              </Link>
-              <Link
-                to="/groups"
-                className={cn(
-                  "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium",
-                  isActive("/groups")
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                )}
-              >
-                Groups
-              </Link>
-            </div>
+    <div className="border-b">
+      <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <Link to="/" className="font-semibold text-lg flex items-center gap-2">
+          <span className="text-primary">NameSwap</span>
+          {currentGroup && <span className="text-xs bg-primary/20 px-2 py-1 rounded-full">Group Mode</span>}
+        </Link>
+
+        <div className="flex gap-1 sm:gap-2 items-center">
+          <div className="flex gap-0.5 sm:gap-1 items-center">
+            <Button 
+              variant={isActive("/") ? "default" : "ghost"} 
+              size="sm" 
+              asChild
+            >
+              <Link to="/">Home</Link>
+            </Button>
+            <Button 
+              variant={isActive("/boys") ? "default" : "ghost"} 
+              size="sm" 
+              asChild
+            >
+              <Link to="/boys">Boys</Link>
+            </Button>
+            <Button 
+              variant={isActive("/girls") ? "default" : "ghost"} 
+              size="sm" 
+              asChild
+            >
+              <Link to="/girls">Girls</Link>
+            </Button>
+            <Button 
+              variant={isActive("/rankings") ? "default" : "ghost"} 
+              size="sm" 
+              asChild
+            >
+              <Link to="/rankings">Rankings</Link>
+            </Button>
+            <Button 
+              variant={isActive("/groups") ? "default" : "ghost"} 
+              size="sm" 
+              asChild
+            >
+              <Link to="/groups">Groups</Link>
+            </Button>
           </div>
+          
+          <LoginDialog />
         </div>
       </div>
-      
-      {/* Mobile menu */}
-      <div className="sm:hidden">
-        <div className="pt-2 pb-3 space-y-1">
-          <Link
-            to="/"
-            className={cn(
-              "block pl-3 pr-4 py-2 text-base font-medium",
-              isActive("/")
-                ? "bg-primary-50 border-l-4 border-primary text-primary"
-                : "border-l-4 border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-            )}
-          >
-            Home
-          </Link>
-          <Link
-            to="/boys"
-            className={cn(
-              "block pl-3 pr-4 py-2 text-base font-medium",
-              isActive("/boys")
-                ? "bg-boy-light border-l-4 border-boy text-boy"
-                : "border-l-4 border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-            )}
-          >
-            Boy Names
-          </Link>
-          <Link
-            to="/girls"
-            className={cn(
-              "block pl-3 pr-4 py-2 text-base font-medium",
-              isActive("/girls")
-                ? "bg-girl-light border-l-4 border-girl text-girl"
-                : "border-l-4 border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-            )}
-          >
-            Girl Names
-          </Link>
-          <Link
-            to="/rankings"
-            className={cn(
-              "block pl-3 pr-4 py-2 text-base font-medium",
-              isActive("/rankings")
-                ? "bg-primary-50 border-l-4 border-primary text-primary"
-                : "border-l-4 border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-            )}
-          >
-            My Rankings
-          </Link>
-          <Link
-            to="/groups"
-            className={cn(
-              "block pl-3 pr-4 py-2 text-base font-medium",
-              isActive("/groups")
-                ? "bg-primary-50 border-l-4 border-primary text-primary"
-                : "border-l-4 border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-            )}
-          >
-            Groups
-          </Link>
-        </div>
-      </div>
-    </nav>
+    </div>
   );
 };
 

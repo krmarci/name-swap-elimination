@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNames, Name, VoteResult } from "@/context/NameContext";
 import { Button } from "@/components/ui/button";
@@ -7,11 +8,16 @@ import { Equal } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const BoysPage = () => {
-  const { getNamePair, addVote, currentGroup } = useNames();
+  const { getNamePair, addVote, currentGroup, votes } = useNames();
   const { toast } = useToast();
   const [namePair, setNamePair] = useState<[Name, Name] | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [voteCount, setVoteCount] = useState(0);
+  
+  // Count only votes related to boys to display on this page
+  const userVotesCount = votes.filter(v => 
+    v.name1Id.startsWith('boy-') && 
+    (!currentGroup || v.groupId === currentGroup)
+  ).length;
 
   useEffect(() => {
     if (!namePair) {
@@ -25,7 +31,7 @@ const BoysPage = () => {
         });
       }
     }
-  }, [namePair, getNamePair]);
+  }, [namePair, getNamePair, toast]);
 
   const handleVote = (result: VoteResult) => {
     if (!namePair || isProcessing) return;
@@ -35,7 +41,6 @@ const BoysPage = () => {
     setTimeout(() => {
       if (namePair) {
         addVote(namePair[0].id, namePair[1].id, result, currentGroup || undefined);
-        setVoteCount(prev => prev + 1);
         setNamePair(null);
         setIsProcessing(false);
       }
@@ -55,7 +60,7 @@ const BoysPage = () => {
           </p>
           
           <div className="text-sm text-gray-500 mt-2">
-            Votes cast: {voteCount}
+            Votes cast: {userVotesCount}
           </div>
         </div>
         
@@ -103,6 +108,9 @@ const BoysPage = () => {
           <p className="text-gray-500 max-w-2xl mx-auto">
             Your votes help determine which names are most popular. All votes are stored
             locally on your device. Click the equals sign if you think both names are equally good.
+          </p>
+          <p className="text-gray-400 text-sm mt-2 max-w-2xl mx-auto">
+            Note: For a true multi-user experience with persistent global rankings, consider logging in.
           </p>
         </div>
       </div>

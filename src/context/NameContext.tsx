@@ -1,7 +1,9 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 export type Gender = "boy" | "girl";
 export type VoteResult = 0 | 1 | 2; // 0 for left name, 1 for right name, 2 for tie
@@ -85,7 +87,11 @@ const calculateElo = (ratingA: number, ratingB: number, resultA: number): [numbe
 
 export const NameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { toast } = useToast();
-  const [userId] = useLocalStorage("nameswap-user-id", uuidv4());
+  const { user, getAnonymousId } = useAuth();
+  
+  // Use authenticated user ID if available, otherwise use anonymous ID
+  const userId = user ? user.id : getAnonymousId();
+  
   const [boyNames, setBoyNames] = useState<Name[]>([]);
   const [girlNames, setGirlNames] = useState<Name[]>([]);
   const [votes, setVotes] = useLocalStorage<Vote[]>("nameswap-votes", []);
