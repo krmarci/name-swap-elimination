@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { v4 as uuidv4 } from "uuid";
@@ -29,6 +28,11 @@ export interface Group {
   createdBy: string;
   members: string[];
 }
+
+// Test data arrays
+const boysTestData = ['Gellért', 'Sámuel', 'Aurél', 'Baltazár', 'Benedek', 'Csongor', 'Dávid', 'Dénes', 'Dominik', 'Gergely', 'Hunor', 'Mikó', 'Nándor', 'Roland', 'Szabolcs', 'Tibor', 'Vencel', 'Béla', 'Elek', 'Máté', 'Mihály', 'Miklós', 'Ottó', 'Róbert', 'Ábel', 'Ágost', 'Aladár', 'Alfréd', 'Andor', 'András', 'Antal', 'Ármin', 'Arnold', 'Áron', 'Árpád', 'Artúr', 'Balázs', 'Barnabás', 'Bendegúz', 'Berengár', 'Bernárd', 'Bernát', 'Bertalan', 'Boldizsár', 'Botond', 'Csaba', 'Dániel', 'Dezső', 'Donát', 'Ede', 'Elemér', 'Emett', 'Ernő', 'Félix', 'Ferenc', 'Gábor', 'Géza', 'Gusztáv', 'Huba', 'Hugó', 'Illés', 'Ince', 'István', 'Károly', 'Keresztély', 'Kolos', 'Koppány', 'Lajos', 'László', 'Levente', 'Lóránd', 'Magor', 'Márton', 'Medárd', 'Miksa', 'Norbert', 'Oszkár', 'Örs', 'Patrik', 'Péter', 'Richárd', 'Salamon', 'Sándor', 'Sebestyén', 'Simon', 'Szilárd', 'Teó', 'Tóbiás', 'Vászoly', 'Viktor', 'Vilmos', 'Vince', 'Vitold', 'Zoltán', 'Zsigmond', 'Zsolt', 'Ádám', 'Ambrus', 'Attila', 'Benett'];
+
+const girlsTestData = ['Borbála', 'Lilla', 'Panna', 'Anna', 'Aranka', 'Elvira', 'Erzsébet', 'Eszter', 'Etelka', 'Gréta', 'Hajnalka', 'Ilona', 'Júlia', 'Julianna', 'Karolina', 'Kincső', 'Liána', 'Lívia', 'Márta', 'Piroska', 'Sára', 'Zsófia', 'Zsuzsanna', 'Apollónia', 'Cecília', 'Csenge', 'Dorottya', 'Lídia', 'Linda', 'Patrícia', 'Réka', 'Valéria', 'Zita', 'Adaléna', 'Alícia', 'Alíz', 'Alojzia', 'Amanda', 'Andrea', 'Anett', 'Anita', 'Annaléna', 'Antónia', 'Aurélia', 'Auróra', 'Bea', 'Beáta', 'Bernadett', 'Bettina', 'Bíborka', 'Boglárka', 'Bóra', 'Brigitta', 'Csilla', 'Dóra', 'Dorina', 'Ella', 'Elza', 'Emília', 'Emma', 'Enikő', 'Eugénia', 'Éva', 'Evelin', 'Fabrícia', 'Felícia', 'Gabriella', 'Gertrúd', 'Glória', 'Gyöngyi', 'Gyöngyvér', 'Heléna', 'Helga', 'Hermina', 'Izabell', 'Izabella', 'Janka', 'Jázmin', 'Johanna', 'Jolán', 'Julietta', 'Kamilla', 'Kata', 'Katalin', 'Konstancia', 'Korina', 'Laura', 'Léda', 'Léna', 'Leonóra', 'Letícia', 'Lina', 'Linell', 'Ludovika', 'Lujza', 'Margit', 'Margó', 'Matild', 'Matilda', 'Mia'];
 
 interface NameContextType {
   userId: string;
@@ -93,35 +97,19 @@ export const NameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     pair: null
   });
 
-  // Fetch names from the Hungarian naming authority
+  // Load names from our local test data instead of fetching from URLs
   const fetchNames = async () => {
     setIsLoading(true);
     try {
-      // Fetch boy names
-      const boyResponse = await fetch("https://file.nytud.hu/osszesffi.txt");
-      const boyText = await boyResponse.text();
-      const boyNamesList = boyText
-        .split("\n")
-        .filter(name => name.trim() !== "")
-        .map(name => name.trim());
-      
-      // Fetch girl names
-      const girlResponse = await fetch("https://file.nytud.hu/osszesnoi.txt");
-      const girlText = await girlResponse.text();
-      const girlNamesList = girlText
-        .split("\n")
-        .filter(name => name.trim() !== "")
-        .map(name => name.trim());
-      
-      // Create name objects with initial Elo ratings
-      const formattedBoyNames = boyNamesList.map(name => ({
+      // Create name objects with initial Elo ratings from the test data
+      const formattedBoyNames = boysTestData.map(name => ({
         id: `boy-${name}`,
         name,
         gender: "boy" as Gender,
         elo: START_ELO
       }));
       
-      const formattedGirlNames = girlNamesList.map(name => ({
+      const formattedGirlNames = girlsTestData.map(name => ({
         id: `girl-${name}`,
         name,
         gender: "girl" as Gender,
@@ -140,10 +128,10 @@ export const NameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         description: `Loaded ${formattedBoyNames.length} boy names and ${formattedGirlNames.length} girl names.`,
       });
     } catch (error) {
-      console.error("Error fetching names:", error);
+      console.error("Error loading names:", error);
       toast({
         title: "Error",
-        description: "Failed to load names. Please try again later.",
+        description: "Failed to load names. Please try again.",
         variant: "destructive",
       });
       setIsLoading(false);
