@@ -3,10 +3,12 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LoginDialog } from "./LoginDialog";
 import { useNames } from "@/context/NameContext";
+import { useAuth } from "@/hooks/use-auth";
 
 const NavBar = () => {
   const location = useLocation();
   const { currentGroup } = useNames();
+  const { user } = useAuth();
   
   const isActive = (path: string) => location.pathname === path;
   
@@ -41,20 +43,25 @@ const NavBar = () => {
             >
               <Link to="/girls">Girls</Link>
             </Button>
-            <Button 
-              variant={isActive("/rankings") ? "default" : "ghost"} 
-              size="sm" 
-              asChild
-            >
-              <Link to="/rankings">Rankings</Link>
-            </Button>
-            <Button 
-              variant={isActive("/groups") ? "default" : "ghost"} 
-              size="sm" 
-              asChild
-            >
-              <Link to="/groups">Groups</Link>
-            </Button>
+            
+            {user && (
+              <>
+                <Button 
+                  variant={isActive("/rankings") ? "default" : "ghost"} 
+                  size="sm" 
+                  asChild
+                >
+                  <Link to="/rankings">Rankings</Link>
+                </Button>
+                <Button 
+                  variant={isActive("/groups") ? "default" : "ghost"} 
+                  size="sm" 
+                  asChild
+                >
+                  <Link to="/groups">Groups</Link>
+                </Button>
+              </>
+            )}
           </div>
           
           <LoginDialog />

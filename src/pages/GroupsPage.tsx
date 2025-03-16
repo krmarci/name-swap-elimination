@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNames } from "@/context/NameContext";
 import { 
   Card, 
@@ -34,8 +34,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import NavBar from "@/components/NavBar";
-import { Plus, Users, User, UserPlus, UsersRound, UserX } from "lucide-react";
+import { Plus, Users, User, UserPlus, UsersRound, UserX, LogIn } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { useNavigate } from "react-router-dom";
 
 const GroupsPage = () => {
   const { 
@@ -52,11 +54,41 @@ const GroupsPage = () => {
     getGroupRanking 
   } = useNames();
   const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [newGroupName, setNewGroupName] = useState("");
   const [joinGroupId, setJoinGroupId] = useState("");
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [genderTab, setGenderTab] = useState<string>("boys");
   const [memberToKick, setMemberToKick] = useState<string | null>(null);
+  
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
+  
+  // If not logged in, show a login prompt
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <NavBar />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">Login Required</h1>
+            <p className="text-xl text-gray-600 mb-8">
+              You need to be logged in to view and manage groups.
+            </p>
+            <Button size="lg" className="gap-2" onClick={() => navigate("/")}>
+              <LogIn className="h-5 w-5" />
+              Go to Homepage to Log In
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   const userGroups = getUserGroups();
   const activeGroup = currentGroup ? getGroupById(currentGroup) : null;
